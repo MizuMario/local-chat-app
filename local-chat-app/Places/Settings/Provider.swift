@@ -10,9 +10,21 @@ import Foundation
 
 
 struct Provider: View {
+    @State var showSheet = false
     var body: some View {
         List {
             Section {
+                Button(action:{showSheet = true})
+                {
+                    Text("新規プロバイダー接続")
+                }.sheet(isPresented: $showSheet) {
+                    NewProviderView()
+                }
+            } header: {
+                Text("新規作成")
+            }
+            Section {
+                //プロバイダー 一覧を配列として表示したい
                 //とりあえずOpenAi互換を前提にしたい
                 NavigationLink(destination: CheckProvider()) {
                     Text("OpenAI")
@@ -24,6 +36,8 @@ struct Provider: View {
                     Text("OpenAI互換")
                 }
 
+            }header: {
+                Text("作成済")
             }
         }.navigationTitle("プロバイダー")
     }
@@ -64,6 +78,7 @@ struct Model: Decodable {
 }
 
 
+//APIを叩いてモデルを読み込むあれ
 func fetchModels(inputURL: String) {
     guard let checkurl = URL(string: inputURL+"/v1/models") else { return }
 
@@ -93,4 +108,29 @@ func fetchModels(inputURL: String) {
         }
     }.resume()
     print("処理の成功")
+}
+
+//新規チャットの制作画面
+struct NewProviderView: View {
+    var body: some View {
+        NavigationView {
+            //タイトル
+            NewProviderOption()
+                .navigationTitle("新規プロバイダー")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("閉じる") {
+                            // dismiss処理
+                        }
+                    }
+                }
+        }
+    }
+}
+//新規プロバイダー接続画面
+struct NewProviderOption: View {
+    var body: some View {
+        //ここに色々と設計
+        Text("作成画面")
+    }
 }
