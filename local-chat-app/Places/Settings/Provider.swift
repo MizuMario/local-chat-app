@@ -18,7 +18,23 @@ struct Provider: View {
                 {
                     Text("新規プロバイダー接続")
                 }.sheet(isPresented: $showSheet) {
-                    NewProviderView()
+                    NavigationView {
+                        //タイトル
+                        NewProviderOption()
+                            .navigationTitle("新規プロバイダー")
+                            .toolbar {
+                                ToolbarItem(placement: .navigationBarLeading) {
+                                    Button("閉じる") {
+                                        showSheet = false
+                                    }
+                                }
+                                ToolbarItem(placement: .navigationBarTrailing) {
+                                    Button("保存") {
+                                        //保存時の処理を記載。おそらくURLに存在しているかどうかの検査を行う
+                                    }
+                                }
+                            }
+                    }
                 }
             } header: {
                 Text("新規作成")
@@ -110,6 +126,7 @@ func fetchModels(inputURL: String) {
     print("処理の成功")
 }
 
+
 //新規チャットの制作画面
 struct NewProviderView: View {
     var body: some View {
@@ -120,7 +137,13 @@ struct NewProviderView: View {
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button("閉じる") {
-                            // dismiss処理
+                            // 閉じた時の処理
+                         print("閉じる処理")
+                        }
+                    }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("保存") {
+                            // 保存時の処理を記載。おそらくURLに存在しているかどうかの検査を行う
                         }
                     }
                 }
@@ -129,8 +152,28 @@ struct NewProviderView: View {
 }
 //新規プロバイダー接続画面
 struct NewProviderOption: View {
+    @State var Name = ""
+    @State var Url = ""
+    @State var ApiKey = ""
     var body: some View {
-        //ここに色々と設計
-        Text("作成画面")
+        //プロバイダーの新規作成画面の作成
+        NavigationStack
+        {
+            List {
+                Section{
+                    TextField("名前を入力",text: $Name)
+                } header: {
+                    Text("名称")
+                }
+                
+                Section{
+                    TextField("URLを入力",text: $Url)
+                    TextField("APIキーを入力",text: $ApiKey)
+                    
+                } header: {
+                    Text("サーバー設定")
+                }
+            }
+        }
     }
 }

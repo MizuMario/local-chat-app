@@ -26,8 +26,6 @@ struct TalkView: View {
                 } header: {
                     Text("新規会話")
                 }
-                
-                
                 Section {
                     //配列でトークデータの準備
                     
