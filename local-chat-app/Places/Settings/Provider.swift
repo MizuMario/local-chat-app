@@ -11,6 +11,12 @@ import Foundation
 
 struct Provider: View {
     @State var showSheet = false
+    
+    @State var Name = ""
+    @State var Url = ""
+    @State var ApiKey = ""
+    @State var result = false
+    @State var ExitCode = 0
     var body: some View {
         List {
             Section {
@@ -18,7 +24,82 @@ struct Provider: View {
                 {
                     Text("新規プロバイダー接続")
                 }.sheet(isPresented: $showSheet) {
-                    NewProviderView()
+                    NavigationView {
+                        //タイトル
+                        NavigationStack
+                        {
+                            List {
+                                Section{
+                                    TextField("名前を入力",text: $Name)
+                                } header: {
+                                    Text("名称")
+                                }
+                                Section{
+                                    TextField("URLを入力",text: $Url)
+                                    TextField("APIキーを入力",text: $ApiKey)
+                                    
+                                } header: {
+                                    Text("サーバー設定")
+                                }
+                            }
+                        }
+                        .navigationTitle("新規プロバイダー")
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button("閉じる") {
+                                    showSheet = false
+                                }
+                            }
+                            
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("保存") {
+                                    
+                                    //サーバーへの接続処理(仮) by AI生成
+                                    guard let checkurl = URL(string: Url+"/v1/models") else { return }
+                                    var request = URLRequest(url: checkurl)
+                                    request.httpMethod = "GET"
+                                    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                                    request.setValue("Bearer dummy", forHTTPHeaderField: "Authorization")
+                                    
+                                    URLSession.shared.dataTask(with: request) { data, response, error in
+                                        if let error = error {
+                                            print("Error:", error)
+                                            ExitCode = 1
+                                            result = true
+                                            return
+                                        }
+                                        guard let data = data else { return }
+                                        do {
+                                            let decoded = try JSONDecoder().decode(ModelList.self, from: data)
+                                            for model in decoded.data {
+                                                print("Model:", model.id)
+                                            }
+                                        } catch {
+                                            print("Decode Error:", error)
+                                            print("URL:",Url)
+                                            result = true
+                                        }
+                                        
+                                        showSheet = false
+                                    }.resume()
+                                }.alert("Result",isPresented: $result)
+                                {
+                                    
+                                } message: {
+                                    switch ExitCode {
+                                    case 1:
+                                        Text("失敗")
+                                        Text("接続に失敗しました")
+                                    case 0:
+                                        Text("成功")
+                                        Text("接続に成功しました")
+                                    default:
+                                        Text("例外処理")
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             } header: {
                 Text("新規作成")
@@ -108,29 +189,4 @@ func fetchModels(inputURL: String) {
         }
     }.resume()
     print("処理の成功")
-}
-
-//新規チャットの制作画面
-struct NewProviderView: View {
-    var body: some View {
-        NavigationView {
-            //タイトル
-            NewProviderOption()
-                .navigationTitle("新規プロバイダー")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button("閉じる") {
-                            // dismiss処理
-                        }
-                    }
-                }
-        }
-    }
-}
-//新規プロバイダー接続画面
-struct NewProviderOption: View {
-    var body: some View {
-        //ここに色々と設計
-        Text("作成画面")
-    }
 }
